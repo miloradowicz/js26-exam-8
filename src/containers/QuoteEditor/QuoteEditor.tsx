@@ -1,6 +1,6 @@
 import FormControl from '@mui/material/FormControl';
 import { Category, QuoteChunk } from '../../types';
-import { ChangeEvent, FC, FormEventHandler, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, FC, FormEventHandler, useEffect, useState } from 'react';
 import InputLabel from '@mui/material/InputLabel';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -11,9 +11,12 @@ import Input from '@mui/material/Input';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid2';
 import Button from '@mui/material/Button';
+import { Typography } from '@mui/material';
 
 interface Props {
   categories: Category[];
+  preloaderEnqueue: () => void;
+  preloaderDequeue: () => void;
 }
 
 interface FormData {
@@ -22,7 +25,7 @@ interface FormData {
   text: string;
 }
 
-const QuoteEditor: FC<Props> = ({ categories }) => {
+const QuoteEditor: FC<Props> = ({ categories, preloaderEnqueue, preloaderDequeue }) => {
   const [data, setData] = useState<FormData>({ categoryId: '', author: '', text: '' });
   const { id } = useParams();
 
@@ -31,6 +34,8 @@ const QuoteEditor: FC<Props> = ({ categories }) => {
   useEffect(() => {
     const invokeGetQuote = async () => {
       try {
+        preloaderEnqueue();
+
         if (id) {
           const data = await getQuote(id);
 
@@ -44,43 +49,53 @@ const QuoteEditor: FC<Props> = ({ categories }) => {
         console.error(err);
 
         navigate('/quotes/error');
+      } finally {
+        preloaderDequeue();
       }
     };
 
     invokeGetQuote();
-  }, [id, navigate]);
+  }, [id, navigate, preloaderEnqueue, preloaderDequeue]);
 
   const onChange = (e: SelectChangeEvent | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setData((data) => ({ ...data, [e.target.name]: e.target.value }));
   };
 
-  const onSubmit: FormEventHandler = useCallback(
-    (e) => {
-      e.preventDefault();
-      const invokeCreateOrUpdateQuote = async (chunk: QuoteChunk, id?: string) => {
-        if (chunk.categoryId && chunk.author && chunk.text) {
-          try {
-            if (id) {
-              await updateQuote(id, chunk);
-            } else {
-              await createQuote(chunk);
-            }
+  const validateData = (chunk: QuoteChunk) => {
+    return chunk.categoryId && chunk.author && chunk.text;
+  };
 
-            navigate(-1);
-          } catch (err) {
-            console.error(err);
-            navigate('/quotes/update-error');
+  const onSubmit: FormEventHandler = (e) => {
+    e.preventDefault();
+    const invokeCreateOrUpdateQuote = async (chunk: QuoteChunk, id?: string) => {
+      if (validateData(chunk)) {
+        try {
+          preloaderEnqueue();
+
+          if (id) {
+            await updateQuote(id, chunk);
+          } else {
+            await createQuote(chunk);
           }
-        }
-      };
 
-      invokeCreateOrUpdateQuote(data, id);
-    },
-    [data, id, navigate]
-  );
+          navigate(-1);
+        } catch (err) {
+          console.error(err);
+          navigate('/quotes/update-error');
+        } finally {
+          preloaderDequeue();
+        }
+      }
+    };
+
+    invokeCreateOrUpdateQuote(data, id);
+  };
 
   return (
     <>
+      <Typography variant='h4' gutterBottom>
+        {id ? 'Edit quote' : 'Add new quote'}
+      </Typography>
       <form onSubmit={onSubmit}>
         <Grid container>
           <Grid container size={5} spacing={5}>
