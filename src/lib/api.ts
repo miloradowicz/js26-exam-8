@@ -53,6 +53,27 @@ export const getQuotes = async () => {
   return _data;
 };
 
+export const getQuotesByCategory = async (categoryId: string) => {
+  const endpoint = `quotes.json?orderBy="categoryId"&equalTo="${categoryId}"`;
+
+  const url = new URL(endpoint, baseUrl);
+  const { data, status } = await axios.get<QuoteChunksCollection | null>(url.href);
+
+  if (status < 200 || status > 299) {
+    throw new Error(`${status}`);
+  }
+
+  const _data: Quote[] = [];
+
+  if (data) {
+    for (const id in data) {
+      _data.push({ id, ...data[id] });
+    }
+  }
+
+  return _data;
+};
+
 export const getQuote = async (id: string) => {
   const endpoint = `quotes/${id}.json`;
 
