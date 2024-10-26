@@ -11,7 +11,7 @@ const Navbar = () => {
     <>
       <AppBar position='static'>
         <Container maxWidth='xl'>
-          <Toolbar>
+          <Toolbar component='nav'>
             <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
               Quotes Central
             </Typography>
