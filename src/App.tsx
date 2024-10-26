@@ -52,7 +52,7 @@ function App() {
           />
           <Route
             path='/quotes/update-error'
-            element={<Page404 title="Couldn't update quote" description="Couldn't update quote for some reason. This shouldn't happen." />}
+            element={<Page404 title="Couldn't update quote" description="Couldn't update quote for some reason. This shouldn't happen, ever." />}
           />
           <Route path='/quotes/:id/edit' element={<QuoteEditor categories={categories} preloaderEnqueue={enqueue} preloaderDequeue={dequeue} />} />
           <Route path='/add-quote' element={<QuoteEditor categories={categories} preloaderEnqueue={enqueue} preloaderDequeue={dequeue} />} />

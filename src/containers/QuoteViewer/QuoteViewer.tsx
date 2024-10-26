@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import QuoteList from '../../components/QuoteList/QuoteList';
 import { Category, Quote } from '../../types';
 import { deleteQuote, getQuotes, getQuotesByCategory } from '../../lib/api';
@@ -25,8 +25,9 @@ const QuoteViewer: FC<Props> = ({ categories, preloaderEnqueue, preloaderDequeue
     try {
       preloaderEnqueue();
 
-      await deleteQuote(id);
-      navigate(0);
+      if ((await deleteQuote(id)) === null) {
+        await invokeGetQuotes();
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -34,29 +35,29 @@ const QuoteViewer: FC<Props> = ({ categories, preloaderEnqueue, preloaderDequeue
     }
   };
 
-  useEffect(() => {
-    const invokeGetQuotes = async () => {
-      try {
-        preloaderEnqueue();
+  const invokeGetQuotes = useCallback(async () => {
+    try {
+      preloaderEnqueue();
 
-        let data: Quote[];
+      let data: Quote[];
 
-        if (categoryId) {
-          data = await getQuotesByCategory(categoryId);
-        } else {
-          data = await getQuotes();
-        }
-
-        setQuotes(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        preloaderDequeue();
+      if (categoryId) {
+        data = await getQuotesByCategory(categoryId);
+      } else {
+        data = await getQuotes();
       }
-    };
 
-    invokeGetQuotes();
+      setQuotes(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      preloaderDequeue();
+    }
   }, [categoryId, preloaderEnqueue, preloaderDequeue]);
+
+  useEffect(() => {
+    invokeGetQuotes();
+  }, [invokeGetQuotes]);
 
   return (
     <>
