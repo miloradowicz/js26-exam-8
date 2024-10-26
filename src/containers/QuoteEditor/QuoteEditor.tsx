@@ -1,10 +1,10 @@
 import FormControl from '@mui/material/FormControl';
 import { Category, QuoteChunk } from '../../types';
-import { ChangeEvent, FC, FormEventHandler, useEffect, useState } from 'react';
+import { ChangeEvent, FC, FormEventHandler, useCallback, useEffect, useState } from 'react';
 import InputLabel from '@mui/material/InputLabel';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getQuote } from '../../lib/api';
+import { createQuote, getQuote, updateQuote } from '../../lib/api';
 import MenuItem from '@mui/material/MenuItem';
 import FormHelperText from '@mui/material/FormHelperText';
 import Input from '@mui/material/Input';
@@ -14,7 +14,6 @@ import Button from '@mui/material/Button';
 
 interface Props {
   categories: Category[];
-  onSave: (chunk: QuoteChunk, id?: string) => void;
 }
 
 interface FormData {
@@ -23,7 +22,7 @@ interface FormData {
   text: string;
 }
 
-const QuoteEditor: FC<Props> = ({ categories, onSave }) => {
+const QuoteEditor: FC<Props> = ({ categories }) => {
   const [data, setData] = useState<FormData>({ categoryId: '', author: '', text: '' });
   const { id } = useParams();
 
@@ -55,11 +54,30 @@ const QuoteEditor: FC<Props> = ({ categories, onSave }) => {
     setData((data) => ({ ...data, [e.target.name]: e.target.value }));
   };
 
-  const onSubmit: FormEventHandler = (e) => {
-    e.preventDefault();
+  const onSubmit: FormEventHandler = useCallback(
+    (e) => {
+      e.preventDefault();
+      const invokeCreateOrUpdateQuote = async (chunk: QuoteChunk, id?: string) => {
+        if (chunk.categoryId && chunk.author && chunk.text) {
+          try {
+            if (id) {
+              await updateQuote(id, chunk);
+            } else {
+              await createQuote(chunk);
+            }
 
-    onSave(data, id);
-  };
+            navigate(-1);
+          } catch (err) {
+            console.error(err);
+            navigate('/quotes/update-error');
+          }
+        }
+      };
+
+      invokeCreateOrUpdateQuote(data, id);
+    },
+    [data, id, navigate]
+  );
 
   return (
     <>

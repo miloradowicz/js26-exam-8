@@ -1,6 +1,5 @@
 import { Quote } from '../../../types';
 import { FC, memo } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -8,25 +7,15 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { deleteQuote } from '../../../lib/api';
 import Stack from '@mui/material/Stack';
 
 interface Props {
   quote: Quote;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
-const QuoteItem: FC<Props> = ({ quote: { id, author, text } }) => {
-  const navigate = useNavigate();
-
-  const onDelete = async () => {
-    try {
-      await deleteQuote(id);
-      navigate(0);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
+const QuoteItem: FC<Props> = ({ quote: { author, text }, onEdit, onDelete }) => {
   return (
     <Card variant='outlined' sx={{ minWidth: 275 }}>
       <Stack>
@@ -37,7 +26,7 @@ const QuoteItem: FC<Props> = ({ quote: { id, author, text } }) => {
           </Typography>
         </CardContent>
         <CardActions>
-          <Button to={`/quotes/${id}/edit`} component={RouterLink}>
+          <Button size='small' onClick={onEdit}>
             <EditIcon />
           </Button>
           <Button size='small' onClick={onDelete}>
@@ -51,5 +40,10 @@ const QuoteItem: FC<Props> = ({ quote: { id, author, text } }) => {
 
 export default memo(
   QuoteItem,
-  (prev, next) => prev.quote.id === next.quote.id && prev.quote.author === next.quote.author && prev.quote.text === next.quote.text
+  (prev, next) =>
+    prev.quote.id === next.quote.id &&
+    prev.quote.author === next.quote.author &&
+    prev.quote.text === next.quote.text &&
+    prev.onEdit === next.onEdit &&
+    prev.onDelete === next.onDelete
 );
