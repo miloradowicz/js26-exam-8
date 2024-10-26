@@ -10,8 +10,6 @@ import { getCategories } from './lib/api';
 import Preloader from './components/Preloader/Preloader';
 
 function App() {
-  console.log('App render');
-
   const [categories, setCategories] = useState<Category[]>([]);
   const [load, setLoad] = useState(0);
 

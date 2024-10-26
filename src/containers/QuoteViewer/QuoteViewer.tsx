@@ -13,8 +13,6 @@ interface Props {
 }
 
 const QuoteViewer: FC<Props> = ({ categories, preloaderEnqueue, preloaderDequeue }) => {
-  console.log('QuoteViewer render');
-
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const { categoryId } = useParams();
   const navigate = useNavigate();
