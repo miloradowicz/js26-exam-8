@@ -22,7 +22,7 @@ const QuoteItem: FC<Props> = ({ quote: { author, text }, onEdit, onDelete }) => 
         <CardContent>
           <Typography component='div'>{text}</Typography>
           <Typography component='div' textAlign='end'>
-            {author}
+            &mdash; {author}
           </Typography>
         </CardContent>
         <CardActions>

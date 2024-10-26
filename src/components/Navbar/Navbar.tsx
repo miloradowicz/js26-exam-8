@@ -13,7 +13,9 @@ const Navbar = () => {
         <Container maxWidth='xl'>
           <Toolbar component='nav'>
             <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
-              Quotes Central
+              <Link to='/' component={NavLink} color='inherit' underline='none'>
+                Quotes Central
+              </Link>
             </Typography>
             <Stack direction='row' spacing={2} alignItems='center'>
               <Link to='/' component={NavLink} color='inherit' underline='hover'>
