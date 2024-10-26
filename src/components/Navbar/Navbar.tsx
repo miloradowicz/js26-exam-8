@@ -19,7 +19,7 @@ const Navbar = () => {
               <Link to='/' component={NavLink} color='inherit' underline='hover'>
                 Quotes
               </Link>
-              <Link to='/new-quote' component={NavLink} color='inherit' underline='hover'>
+              <Link to='/add-quote' component={NavLink} color='inherit' underline='hover'>
                 Submit new quote
               </Link>
             </Stack>
